@@ -49,7 +49,7 @@ function displayService(object) {
                         <p class="card-text">${object.description}</p>
                         <p class="card-text"><small class="text-muted">Fare per kilo ${object.farePerKilo}</small> <small class="text-muted">Capacity ${object.capacity}</small></p>
                         <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" onclick='' data-bs-target="#exampleModal">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" onclick='showModal(${JSON.stringify(object)})' data-bs-target="#exampleModal">
                             see details
                         </button>
                     </div>
@@ -60,4 +60,58 @@ function displayService(object) {
     mainSectionElement.appendChild(singleDiv);
 }
 
-displayService(carObject);
+const objArray = [carObject, boatObject, bikeObject, busObject];
+
+for (let i = 0; i < objArray.length; i++) {
+    displayService(objArray[i]);
+}
+
+function showModal(object) {
+    const modalBodyElement = document.getElementById('modal-body');
+    modalBodyElement.innerHTML = `
+        <div class="card mx-auto" style="width: 18rem;">
+            <img src=${object.imageUrl} class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Vehicle Mood : ${object.vehicle}</h5>
+                <p class="card-text">${object.description}</p>
+                <p class="card-text"><small class="text-muted">Fare per kilo ${object.farePerKilo}</small> <small
+                        class="text-muted">Capacity ${object.capacity}</small></p>
+                <div class="d-flex flex-column" role="search">
+                    <p>Fare: <small class="text-muted" id="fare"></small> </p>
+                    <p>tax: <small class="text-muted" id="tax"></small> </p>
+                    <p>Total-cost: <small class="text-muted" id="total-cost"></small> </p>
+                    <input class="form-control m-2" id="distance-input" type="number" placeholder="Koto kilo jaba?"
+                        aria-label="Search" />
+                    <input class="form-control m-2" type="number" id="quantity-input" placeholder="koita gari lagbe?"
+                        aria-label="Search" />
+                    <button class="btn btn-outline-success" id="search-btn" aria-label=" type="submit"
+                        onclick='calculateFare(${JSON.stringify(object)})'>submit</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function calculateFare(object) {
+    const quantity = document.getElementById("quantity-input").value;
+    const distance = document.getElementById("distance-input").value;
+    const taxElement = document.getElementById("tax");
+    const grandTotalElement = document.getElementById("total-cost");
+    const fareDiv = document.getElementById("fare");
+    const totalAmount = quantity * distance * object.farePerKilo;
+    const tax = totalAmount * .15;
+    const grandTotal = totalAmount + tax;
+    fareDiv.innerHTML = totalAmount;
+    taxElement.innerText = tax.toFixed(2);
+    grandTotalElement.innerText = grandTotal.toFixed(2);
+}
+
+document.getElementById('search-btn').addEventListener('click', function(){
+    const searchValue = document.getElementById('search-value').value;
+    for (let i = 0; i < objArray.length; i++) {
+        if (searchValue.toLowerCase() === objArray[i].vehicle.toLowerCase()) {
+            document.getElementById('main-section').innerHTML = '';
+            displayService(objArray[i]);
+        }
+    }
+});
